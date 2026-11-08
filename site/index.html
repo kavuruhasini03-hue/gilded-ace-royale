@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gilded Ace Royale</title>
+<meta name="description" content="Luck, location, or a leak? An evidence dashboard for the Gilded Ace's ten lowest-earning slot machines. TAMU Datathon 2026 · Dashboard Royale.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Limelight&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --felt:#0b3d2a;--felt2:#072a1d;--bg:#05140e;--panel:#0d2219;--panel2:#123024;--line:#2a4a3a;
+  --text:#f3ecd8;--muted:#a9b8ac;--gold:#e3b850;--gold2:#fff1b8;--gold3:#9c7420;
+  --green:#5fd39a;--red:#ff5f57;--blue:#6fb6ff;--purple:#c79bff;--orange:#ffa24c;--cream:#fbf6e9;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--text);font:15px/1.55 Inter,system-ui,sans-serif;overflow-x:hidden;
+  background:
+    radial-gradient(ellipse 120% 70% at 50% -10%, #145a3d 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 120%, #0e3d2a 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23ffffff' fill-opacity='0.025' font-family='serif' font-size='22'%3E%3Ctext x='10' y='34'%3E%E2%99%A0%3C/text%3E%3Ctext x='70' y='34'%3E%E2%99%A5%3C/text%3E%3Ctext x='40' y='94'%3E%E2%99%A6%3C/text%3E%3Ctext x='100' y='94'%3E%E2%99%A3%3C/text%3E%3C/g%3E%3C/svg%3E"),
+    var(--bg);
+  background-attachment:fixed}
+a{color:var(--gold)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:20;background:rgba(4,16,11,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--gold3);box-shadow:0 1px 0 rgba(227,184,80,.15),0 8px 30px rgba(0,0,0,.4)}
+header.top .wrap{display:flex;align-items:center;gap:18px;height:58px}
+.brand{font-family:Limelight,serif;font-size:22px;white-space:nowrap;color:var(--gold);text-shadow:0 0 12px rgba(227,184,80,.55)}
+.brand b{color:var(--red);font-weight:400}
+nav{display:flex;gap:16px;overflow-x:auto;flex:1;scrollbar-width:none}
+nav a{color:var(--muted);text-decoration:none;font-size:13px;white-space:nowrap;letter-spacing:.03em;transition:color .2s,text-shadow .2s}
+nav a:hover{color:var(--gold2);text-shadow:0 0 10px rgba(255,241,184,.6)}
+#sound,#music{background:transparent;border:1px solid var(--gold3);color:var(--gold);border-radius:999px;padding:4px 10px;cursor:pointer;font-size:13px;white-space:nowrap}
+#music[aria-pressed="true"],#sound[aria-pressed="true"]{background:var(--gold);color:#2b1a00;box-shadow:0 0 14px rgba(227,184,80,.6)}
+#music[aria-pressed="true"]{animation:pulse 1.07s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 4px rgba(227,184,80,.3)}}
+.spark{position:fixed;pointer-events:none;z-index:60;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle,#fff8d6,#e3b850 60%,transparent 70%);animation:spark .8s ease-out forwards}
+@keyframes spark{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+@media (max-width:600px){#sound,#music{padding:3px 8px;font-size:12px}}
+
+/* hero marquee */
+.hero{padding:34px 0 18px}
+.marquee{position:relative;border-radius:22px;padding:34px 28px 30px;margin-top:10px;
+  background:radial-gradient(ellipse at 50% 0%,#1a6e4a 0%,var(--felt) 45%,var(--felt2) 100%);
+  border:3px solid var(--gold3);box-shadow:0 0 0 6px #1c1202,0 0 0 8px var(--gold3),0 20px 60px rgba(0,0,0,.6),inset 0 0 80px rgba(0,0,0,.45)}
+.bulbs{position:absolute;inset:-14px;border-radius:30px;pointer-events:none;
+  --b:radial-gradient(circle,#fff6c8 0 2.6px,#ffcf4d 3.2px,rgba(255,207,77,0) 6px);
+  background:
+    var(--b) 0 0/26px 26px repeat-x, var(--b) 13px 100%/26px 26px repeat-x,
+    var(--b) 0 13px/26px 26px repeat-y, var(--b) 100% 0/26px 26px repeat-y;
+  -webkit-mask:linear-gradient(#000 0 0) top/100% 14px no-repeat,linear-gradient(#000 0 0) bottom/100% 14px no-repeat,linear-gradient(#000 0 0) left/14px 100% no-repeat,linear-gradient(#000 0 0) right/14px 100% no-repeat;
+  mask:linear-gradient(#000 0 0) top/100% 14px no-repeat,linear-gradient(#000 0 0) bottom/100% 14px no-repeat,linear-gradient(#000 0 0) left/14px 100% no-repeat,linear-gradient(#000 0 0) right/14px 100% no-repeat;
+  animation:chase 1.1s steps(2) infinite;filter:drop-shadow(0 0 4px #ffcf4d)}
+@keyframes chase{50%{background-position:13px 0,0 100%,0 0,100% 13px;opacity:.75}}
+.eyebrow{color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11.5px;font-weight:700;text-align:center}
+h1{font-family:Limelight,serif;font-weight:400;font-size:clamp(34px,6vw,64px);line-height:1.05;margin:10px 0 12px;text-align:center;
+  background:linear-gradient(100deg,var(--gold3) 0%,var(--gold) 25%,var(--gold2) 45%,var(--gold) 55%,var(--gold3) 80%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:shimmer 5s linear infinite;filter:drop-shadow(0 3px 0 #3a2a05) drop-shadow(0 0 18px rgba(227,184,80,.35))}
+@keyframes shimmer{to{background-position:-250% 0}}
+.suits{text-align:center;font-size:20px;letter-spacing:.6em;margin-bottom:6px}
+.suits span:nth-child(even){color:var(--red)}
+.lede{font-size:17px;color:#d9e4da;max-width:760px;margin:0 auto;text-align:center}
+
+/* slot machine */
+.slot{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:18px;margin:24px auto 6px}
+.reels{display:flex;gap:8px;padding:10px;background:linear-gradient(#2a1c05,#120b02);border:2px solid var(--gold3);border-radius:14px;box-shadow:inset 0 0 20px #000,0 0 18px rgba(227,184,80,.25)}
+.reel{width:118px;height:64px;overflow:hidden;border-radius:8px;background:linear-gradient(#ddd 0%,#fff 30%,#fff 70%,#c9c9c9 100%);position:relative}
+.reel::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.35),transparent 30%,transparent 70%,rgba(0,0,0,.35));pointer-events:none}
+.strip{display:flex;flex-direction:column}
+.strip div{height:64px;display:flex;align-items:center;justify-content:center;font:700 15px/1 Inter;color:#1b1b1b;letter-spacing:.04em}
+.strip .sym{font-size:30px}
+.lever{display:flex;flex-direction:column;align-items:center;gap:8px}
+#spin{font:400 18px Limelight,serif;color:#2b1a00;background:radial-gradient(circle at 35% 30%,#fff3b0,var(--gold) 45%,var(--gold3));border:none;border-radius:999px;padding:12px 26px;cursor:pointer;
+  box-shadow:0 5px 0 #5e430b,0 0 22px rgba(227,184,80,.55);transition:transform .08s,box-shadow .08s}
+#spin:active{transform:translateY(4px);box-shadow:0 1px 0 #5e430b,0 0 12px rgba(227,184,80,.4)}
+#spin:disabled{filter:grayscale(.4) brightness(.8);cursor:wait}
+.slotmsg{min-height:22px;text-align:center;color:var(--gold2);font-size:14px}
+.slotmsg a{color:var(--gold2)}
+
+/* verdict */
+.verdict{position:relative;margin:22px auto 0;max-width:900px;text-align:center;border-radius:16px;padding:18px 22px;font-size:19px;font-weight:700;color:#2a1a00;
+  background:linear-gradient(135deg,#b88a24,#f4d985 30%,#fff3c4 50%,#e6c35f 70%,#a67a1b);box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 #fff8dc}
+.verdict .tag{display:inline-block;font:400 13px Limelight,serif;letter-spacing:.2em;background:#7a0f0f;color:#ffe9a8;border-radius:999px;padding:3px 12px;margin-bottom:8px;box-shadow:0 0 12px rgba(255,95,87,.5)}
+.verdict small{display:block;color:#3d2b06;font-weight:500;font-size:13.5px;margin-top:8px}
+
+/* chips */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:26px}
+.chip{--c:var(--red);position:relative;text-align:center;padding:16px 10px 14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);overflow:hidden;transition:transform .25s}
+.chip:hover{transform:translateY(-4px) rotate(-1deg)}
+.chip::before{content:"";display:block;width:54px;height:54px;margin:0 auto 8px;border-radius:50%;
+  background:radial-gradient(circle,var(--cream) 0 15px,var(--c) 16px 21px,transparent 22px),
+    repeating-conic-gradient(var(--c) 0 22.5deg,var(--cream) 22.5deg 45deg);
+  box-shadow:0 3px 0 rgba(0,0,0,.45),inset 0 0 0 2px rgba(0,0,0,.25);animation:chipspin 14s linear infinite}
+.chip:nth-child(2){--c:#1e5fd1}.chip:nth-child(3){--c:#1d8a4f}.chip:nth-child(4){--c:#111}.chip:nth-child(5){--c:#7b2fbf}.chip:nth-child(6){--c:#c79a2b}
+@keyframes chipspin{to{transform:rotate(360deg)}}
+.chip .v{font:400 25px Limelight,serif;color:var(--gold2)}
+.chip .l{color:var(--muted);font-size:12.5px}
+
+/* sections */
+section{padding:44px 0 30px}
+h2{font-family:"Playfair Display",serif;font-weight:900;font-size:30px;margin:0 0 6px;display:flex;align-items:center;gap:12px}
+h2 .pip{font-size:24px;width:40px;height:52px;border-radius:6px;background:var(--cream);color:#111;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(0,0,0,.5);transform:rotate(-6deg)}
+h2 .pip.r{color:#c1121f}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--gold3),transparent);margin-top:8px}
+.sub{color:var(--muted);margin:0 0 20px;max-width:800px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+#explorer .grid2{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+@media (max-width:860px){.grid2,#explorer .grid2{grid-template-columns:1fr}}
+.card{position:relative;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;padding:16px;min-width:0;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.card::after{content:"♠";position:absolute;top:10px;right:14px;color:var(--gold3);opacity:.5;font-size:14px}
+.card h3{margin:0 0 4px;font-size:15px;color:var(--gold2)}
+.card p.note{color:var(--muted);font-size:12.5px;margin:4px 0 10px}
+.chart{position:relative;height:300px}
+.chart.tall{height:380px}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child,th.l,td.l{text-align:left}
+th{color:var(--gold);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;user-select:none;position:sticky;top:0;background:var(--panel2);z-index:1}
+tbody tr{cursor:pointer;transition:background .15s}
+tbody tr:hover{background:rgba(227,184,80,.08)}
+tr.sel{background:rgba(227,184,80,.2)!important}
+.neg{color:var(--red)}.pos{color:var(--green)}
+.suit{display:inline-block;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;border:1px solid currentColor;letter-spacing:.04em}
+.s-LOCATION{color:var(--blue)}.s-LINEUP{color:var(--purple)}.s-LEAK{color:var(--orange)}.s-LUCK{color:var(--green)}.s-INSPECT{color:var(--red);box-shadow:0 0 10px rgba(255,95,87,.5)}.s-MACHINE{color:var(--gold)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+input,select{background:var(--panel);border:1px solid var(--gold3);color:var(--text);border-radius:999px;padding:8px 14px;font:inherit;font-size:14px}
+input{flex:1;min-width:160px}
+input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.scroll{max-height:440px;overflow:auto}
+.detail{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+.detail div{background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:9px}
+.detail b{display:block;font-size:16px;color:var(--gold2)}
+.detail span{color:var(--muted);font-size:11.5px}
+
+/* plan: playing cards */
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;perspective:1200px}
+.pcard{height:250px;cursor:pointer;outline:none}
+.pcard .in{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.pcard:hover .in,.pcard:focus .in,.pcard.flip .in{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:16px 18px;box-shadow:0 12px 26px rgba(0,0,0,.5)}
+.front{background:var(--cream);color:#151515;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.front .corner{position:absolute;font:700 18px/1 "Playfair Display",serif;text-align:center}
+.front .corner.tl{top:12px;left:14px}.front .corner.br{bottom:12px;right:14px;transform:rotate(180deg)}
+.front.red{color:#b3121d}
+.front .amt{font:400 34px Limelight,serif}
+.front .tag{font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.75}
+.front .name{font-weight:700;margin-top:4px}
+.back{transform:rotateY(180deg);background:
+  repeating-linear-gradient(45deg,#7a0f0f 0 8px,#8f1515 8px 16px);border:6px solid var(--cream);color:#fff;display:flex;flex-direction:column;justify-content:center}
+.back p{margin:0;font-size:14px;line-height:1.5;background:rgba(0,0,0,.45);padding:12px;border-radius:10px}
+.back b{color:#ffe9a8}
+.pcard.fund .front{box-shadow:0 0 0 3px var(--green),0 0 26px rgba(95,211,154,.55)}
+.pcard.keep .front{box-shadow:0 0 0 3px var(--gold),0 0 26px rgba(227,184,80,.6)}
+.hint{color:var(--muted);font-size:12.5px;margin-top:10px;text-align:center}
+.stack{display:flex;align-items:flex-end;gap:16px;margin:26px 0 8px;justify-content:center;flex-wrap:wrap}
+.stack .col{display:flex;flex-direction:column-reverse;align-items:center}
+.stack .col i{display:block;width:64px;height:9px;border-radius:50%;margin-top:-3px;background:var(--c);box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),0 0 0 1px rgba(0,0,0,.4);animation:drop .5s backwards}
+.stack .col span{font-size:12px;color:var(--muted);margin-top:8px;order:-1}
+@keyframes drop{from{transform:translateY(-60px);opacity:0}}
+
+table.wrap-cells td{white-space:normal;vertical-align:top;text-align:left;min-width:150px;font-size:13px}
+table.wrap-cells td:first-child{min-width:40px;color:var(--gold2);font-weight:600}
+footer{padding:30px 0 60px;color:var(--muted);font-size:13px;border-top:1px solid var(--gold3);text-align:center}
+sup{color:var(--gold)}
+
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s,transform .7s}
+.reveal.on{opacity:1;transform:none}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:50}
+@media (max-width:600px){
+  .marquee{padding:26px 12px 22px;border-radius:16px}
+  .bulbs{inset:-11px;border-radius:22px}
+  .reels{gap:5px;padding:7px}
+  .reel{width:calc((100vw - 110px) / 3);height:56px}
+  .strip div{height:56px;font-size:11px}
+  .strip .sym{font-size:24px}
+  .lede{font-size:15px}
+  .verdict{font-size:16px;padding:16px 14px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  h2{font-size:24px}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<header class="top"><div class="wrap">
+  <div class="brand">♠ Gilded <b>Ace</b></div>
+  <nav>
+    <a href="#verdict">Verdict</a><a href="#bottom10">Bottom 10</a><a href="#explorer">Machine explorer</a>
+    <a href="#location">Location</a><a href="#leak">Leak</a><a href="#floor">Floor & comps</a><a href="#model">Model</a><a href="#plan">$100K plan</a><a href="#method">Method</a><a href="#evidence">Evidence</a>
+  </nav>
+  <button id="music" aria-pressed="false" title="Casino lounge music">♪ Music</button>
+  <button id="sound" aria-pressed="false" title="Sound effects">🔇 Sound</button>
+</div></header>
+
+<main class="wrap">
+  <div class="hero" id="verdict">
+    <div class="marquee">
+      <div class="bulbs" aria-hidden="true"></div>
+      <div class="suits" aria-hidden="true"><span>♠</span><span>♥</span><span>♣</span><span>♦</span></div>
+      <div class="eyebrow">TAMU Datathon 2026 · Dashboard Royale · Jan–Jun 2025</div>
+      <h1>Luck, Location, or a Leak?</h1>
+      <p class="lede">Management wants to replace the ten slot machines that earned the least. Before touching a single cabinet, we split each machine's result into
+        <b>luck</b>, <b>location</b>, <b>lineup</b> (the game it runs) and <b>leak</b> (downtime).</p>
+
+      <div class="slot">
+        <div class="reels" aria-live="polite">
+          <div class="reel"><div class="strip" id="r0"></div></div>
+          <div class="reel"><div class="strip" id="r1"></div></div>
+          <div class="reel"><div class="strip" id="r2"></div></div>
+        </div>
+        <div class="lever"><button id="spin">Pull the lever</button></div>
+      </div>
+      <div class="slotmsg" id="slotmsg">Spin to deal a random machine from the floor and read its verdict.</div>
+
+      <div class="verdict"><span class="tag">THE HOUSE CALLS IT</span><br>
+        Replace none of the GM's bottom ten in July. Inspect M-1158, defer the underpowered comp pilot, and keep $98,800 in reserve.
+        <small>Nine of the ten sit in the Back Forty, whose traffic dropped when its entrance walkway closed for renovation (Mar 3 – Apr 7). Most of their gap comes from location and low-earning game configs, not broken machines.</small></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </div>
+
+  <section id="bottom10" class="reveal">
+    <h2><span class="pip">♠</span>The GM's bottom ten</h2><div class="divider"></div>
+    <p class="sub">Ranked by raw house win on the active floor. Each bar splits the machine's gap against a typical floor machine into the four L's. Negative means it cost money.</p>
+    <div class="grid2">
+      <div class="card"><h3>4-L bridge per machine</h3><p class="note">Dollars vs. a floor-median machine with the same available hours.</p><div class="chart tall"><canvas id="bridge"></canvas></div></div>
+      <div class="card"><h3>Verdict per machine</h3><p class="note">Suit = largest adverse component. |luck z| ≥ 3 routes to inspection. * = partial exposure (under 181 floor days).</p>
+        <div class="tbl"><table id="b10"><thead><tr><th class="l">Machine</th><th class="l">Zone</th><th>House win</th><th>Luck z</th><th>Days</th><th class="l">Suit</th></tr></thead><tbody></tbody></table></div></div>
+    </div>
+  </section>
+
+  <section id="explorer" class="reveal">
+    <h2><span class="pip r">♥</span>Machine explorer</h2><div class="divider"></div>
+    <p class="sub">All active-floor machines. Search, filter, sort by any column, and click a row or a dot to see its 4-L breakdown.</p>
+    <div class="controls">
+      <input id="q" placeholder="Search machine, theme, bank…">
+      <select id="fz"><option value="">All zones</option></select>
+      <select id="fs"><option value="">All suits</option></select>
+      <select id="fm"><option value="">All manufacturers</option></select>
+      <select id="fb"><option value="">All banks</option></select>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="scroll tbl"><table id="mt"><thead><tr>
+        <th class="l" data-k="machine_id">Machine</th><th class="l" data-k="zone">Zone</th><th data-k="house_win">House win</th>
+        <th data-k="rate">Theo/h</th><th data-k="z">Luck z</th><th data-k="faults">Faults</th><th class="l" data-k="suit">Suit</th></tr></thead><tbody></tbody></table></div>
+        <p class="note" id="count"></p></div>
+      <div class="card"><h3 id="dtitle">Luck vs. earning rate</h3><p class="note" id="dnote">Each dot is a machine. Dots outside the dashed ±3σ lines are statistically unusual. Click a row or a dot.</p>
+        <div class="detail" id="dstats" hidden></div>
+        <div class="chart"><canvas id="scatter"></canvas></div></div>
+    </div>
+  </section>
+
+  <section id="location" class="reveal">
+    <h2><span class="pip">♣</span>Location: the Back Forty walkway</h2><div class="divider"></div>
+    <p class="sub">Coin-in per installed machine-day by zone. The Back Forty entrance walkway was closed for renovation from March 3 to April 7, and that zone's demand never fully recovered.</p>
+    <div class="card"><div class="chart tall"><canvas id="zones"></canvas></div></div>
+  </section>
+
+  <section id="leak" class="reveal">
+    <h2><span class="pip r">♦</span>Leak: faults and downtime</h2><div class="divider"></div>
+    <p class="sub">Ridgeline machines open far more fault tickets than the other manufacturers. Overnight tickets also wait the longest for a technician.</p>
+    <div class="grid2">
+      <div class="card"><h3>Fault tickets per machine</h3><div class="chart"><canvas id="mfr"></canvas></div></div>
+      <div class="card"><h3>Mean technician wait by time of day</h3><p class="note">From fault tickets, Jan–Jun 2025.</p><div class="chart"><canvas id="wait"></canvas></div></div>
+    </div>
+  </section>
+
+  <section id="floor" class="reveal">
+    <h2><span class="pip">♠</span>Floor trend and comps</h2><div class="divider"></div>
+    <p class="sub">Daily floor coin-in with the 7-day average, and comp cost as a share of tracked theo, which climbed every month.</p>
+    <div class="grid2">
+      <div class="card"><h3>Daily floor coin-in</h3><div class="chart"><canvas id="daily"></canvas></div></div>
+      <div class="card"><h3>Comp reinvestment (cost ÷ tracked theo)</h3><p class="note">The redemption rate changed around May 1. Proposed monitor: review if it tops 1.50% for two straight weeks.</p><div class="chart"><canvas id="comp"></canvas></div></div>
+    </div>
+  </section>
+
+  <section id="model" class="reveal">
+    <h2><span class="pip r">♦</span>Model: forecasting daily floor coin-in</h2><div class="divider"></div>
+    <p class="sub">Both forecasts were fit on <b>January–April only</b>, then frozen and scored on the <b>61 May–June days</b> they had never seen. The model uses weekday averages plus ridge-penalized flags for announced events and federal holidays. An event counts only if it was announced before the day, so nothing from the future leaks in. The baseline is the constant January–April daily mean.</p>
+    <div class="kpis" id="fkpis"></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="card"><h3>Predictions vs. actuals</h3><p class="note">The shaded area is the holdout. Gold = weekday + event model, red dashed = constant baseline, grey = actual.</p><div class="chart tall"><canvas id="fchart"></canvas></div></div>
+      <div class="card"><h3>Holdout bias by weekday</h3><p class="note">Average actual minus forecast, May–June. Bars near zero mean no recurring bias.</p><div class="chart"><canvas id="fbias"></canvas></div>
+        <p class="note" style="margin-top:12px"><b style="color:var(--gold2)">Decision it changes:</b> The weekday model gives the expected value of each operating hour. We priced the technician-shift packages against it ($11,520 each): even on the busiest weekend nights, recovering the downtime wouldn't cover a 30-day package in July. So the forecast moved the tech shift from "fund" to "don't fund", and the money stays in the reserve.</p></div>
+    </div>
+  </section>
+
+  <section id="plan" class="reveal">
+    <h2><span class="pip r">♥</span>The July $100,000 plan</h2><div class="divider"></div>
+    <p class="sub">We priced every action in the catalog against keeping the money. Only one cleared the bar.</p>
+    <div class="plan">
+      <div class="pcard fund" tabindex="0"><div class="in">
+        <div class="face front red"><div class="corner tl">A<br>♥</div><div class="tag">Funded</div><div class="amt">$1,200</div><div class="name">Inspect M-1158</div><div class="corner br">A<br>♥</div></div>
+        <div class="face back"><p><b>Luck z = −4.57.</b> M-1158 paid out $36.2k more than its game math expects (3.04% hold vs. 10.00% theo). Verify the paytable before blaming anyone.</p></div></div></div>
+      <div class="pcard" tabindex="0"><div class="in">
+        <div class="face front"><div class="corner tl">K<br>♠</div><div class="tag">Deferred</div><div class="amt">$4,000</div><div class="name">Comp pilot with control</div><div class="corner br">K<br>♠</div></div>
+        <div class="face back"><p><b>Underpowered.</b> The 60-day minimum detectable effect is 5.77%, above the 2.5% bar we'd need before funding.</p></div></div></div>
+      <div class="pcard" tabindex="0"><div class="in">
+        <div class="face front red"><div class="corner tl">Q<br>♦</div><div class="tag">Watchlist</div><div class="amt">$9,500+</div><div class="name">Bank move · leases</div><div class="corner br">Q<br>♦</div></div>
+        <div class="face back"><p><b>Promising, but not yet.</b> The annual economics look good, but none pays back inside the 30-day July window.</p></div></div></div>
+      <div class="pcard keep" tabindex="0"><div class="in">
+        <div class="face front"><div class="corner tl">J<br>♣</div><div class="tag">Kept in the cage</div><div class="amt">$98,800</div><div class="name">Preserve budget</div><div class="corner br">J<br>♣</div></div>
+        <div class="face back"><p><b>A valid recommendation.</b> Revisit after the inspection result and August data come in.</p></div></div></div>
+    </div>
+    <p class="hint">Hover or tap a card to flip it.</p>
+    <div class="stack" id="stack" aria-label="$1,200 funded, $98,800 kept"></div>
+    <div class="card" style="margin-top:18px"><h3>Priced actions: cost, effect, uncertainty, measurement</h3>
+      <div class="tbl"><table id="priced" class="wrap-cells"><thead><tr><th class="l">Action (catalog id)</th><th class="l">Cost</th><th class="l">Expected effect</th><th class="l">Uncertainty</th><th class="l">How we'll measure it</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="card" style="margin-top:18px"><h3>Full action catalog</h3><div class="tbl"><table id="cat"><thead><tr><th class="l">Action</th><th>Unit cost</th><th>Per day</th><th>Lead days</th><th>Max qty</th><th class="l">Note</th></tr></thead><tbody></tbody></table></div></div>
+  </section>
+
+  <section id="method" class="reveal">
+    <h2><span class="pip">♣</span>How we measured it</h2><div class="divider"></div>
+    <div class="grid2">
+      <div class="card"><h3>The 4-L bridge</h3><p class="note">
+        <b>Luck</b> = house win − theoretical win, scaled to a z-score using each game's payout variance.<br>
+        <b>Lineup</b> = the config's median theo per available hour vs. the floor median.<br>
+        <b>Location</b> = the zone's typical rate relative to config peers.<br>
+        <b>Leak</b> = scheduled-but-unavailable hours, valued at the machine's expected rate.<br>
+        <b>Machine-specific</b> = whatever is left over: actual theo vs. the zone-adjusted config expectation.</p></div>
+      <div class="card"><h3>Pipeline</h3><p class="note">The full analysis runs as a Databricks medallion pipeline (bronze → silver → gold, 30+ SQL models) with bootstrap intervals, a ridge forecast logged in MLflow, and a seven-page Databricks AI/BI dashboard. This public site recomputes the core 4-L numbers from the released parquet files with DuckDB, so it may differ slightly from the gold tables, which also use bootstrap intervals and occupancy-weighted downtime.</p></div>
+    </div>
+  </section>
+  <section id="evidence" class="reveal">
+    <h2><span class="pip r">♥</span>Claims &amp; evidence</h2><div class="divider"></div>
+    <p class="sub">Every claim on this page traces back to a table, a result, the alternative explanation we tested, and its limitation. The same appendix is in the repo as <a href="https://github.com/kavuruhasini03-hue/gilded-ace-royale/blob/main/CLAIMS_EVIDENCE.md">CLAIMS_EVIDENCE.md</a>.</p>
+    <div class="card"><div class="tbl"><table id="claims" class="wrap-cells"><thead><tr><th class="l">#</th><th class="l">Claim</th><th class="l">Table / query</th><th class="l">Result</th><th class="l">Alternative tested</th><th class="l">Limitation</th></tr></thead><tbody></tbody></table></div></div>
+    <p class="note" style="margin-top:14px"><b>AI use:</b> see the <a href="https://github.com/kavuruhasini03-hue/gilded-ace-royale/blob/main/AI_DISCLOSURE.md">AI disclosure</a>. Analysis decisions and final numbers were checked by the team against the data.</p>
+  </section>
+</main>
+<footer><div class="wrap">♠ ♥ ♣ ♦<br>Fictional casino; synthetic data from the TAMU Datathon 2026 Dashboard Royale release. Source: <a href="https://github.com/kavuruhasini03-hue/gilded-ace-royale">github.com/kavuruhasini03-hue/gilded-ace-royale</a>. Luck findings are leads for inspection, never accusations.</div></footer>
+
+<script>
+(() => {
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = {text:css("--text"),muted:css("--muted"),line:css("--line"),gold:css("--gold"),gold2:css("--gold2"),green:css("--green"),red:css("--red"),blue:css("--blue"),purple:css("--purple"),orange:css("--orange")};
+Chart.defaults.color = C.muted; Chart.defaults.borderColor = "rgba(169,184,172,.14)"; Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+const usd = v => (v < 0 ? "−$" : "$") + Math.abs(v).toLocaleString("en-US", {maximumFractionDigits:0});
+const usdK = v => { const a = Math.abs(v); const s = a >= 1e6 ? (a/1e6).toFixed(1)+"M" : a >= 1e3 ? (a/1e3).toFixed(1)+"k" : a.toFixed(0); return (v<0?"−$":"$")+s; };
+const cls = v => v < 0 ? "neg" : v > 0 ? "pos" : "";
+const suitColor = s => ({LOCATION:C.blue,LINEUP:C.purple,LEAK:C.orange,LUCK:C.green,INSPECT:C.red,MACHINE:C.gold})[s];
+const $ = id => document.getElementById(id);
+
+/* ---------- audio: everything is synthesized live (no audio files, no licensing) ---------- */
+let soundOn = false, actx = null, master = null, sfxBus = null, musicBus = null, verb = null;
+function audio() {
+  if (actx) { if (actx.state === "suspended") actx.resume(); return actx; }
+  actx = new (window.AudioContext || window.webkitAudioContext)();
+  master = actx.createDynamicsCompressor(); master.connect(actx.destination);
+  // small room reverb from generated noise impulse
+  verb = actx.createConvolver(); const len = actx.sampleRate * 1.6, ir = actx.createBuffer(2, len, actx.sampleRate);
+  for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+  verb.buffer = ir; const vg = actx.createGain(); vg.gain.value = .22; verb.connect(vg).connect(master);
+  sfxBus = actx.createGain(); sfxBus.gain.value = 1; sfxBus.connect(master); sfxBus.connect(verb);
+  musicBus = actx.createGain(); musicBus.gain.value = 0; musicBus.connect(master); musicBus.connect(verb);
+  return actx;
+}
+$("sound").onclick = () => { soundOn = !soundOn; $("sound").textContent = soundOn ? "🔊 Sound" : "🔇 Sound"; $("sound").setAttribute("aria-pressed", soundOn); if (soundOn) { audio(); jingle(); } };
+function beep(f, d = .06, type = "square", vol = .04, when = 0) {
+  if (!soundOn || !actx) return; const o = actx.createOscillator(), g = actx.createGain(); const t = actx.currentTime + when;
+  o.type = type; o.frequency.value = f; g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g).connect(sfxBus); o.start(t); o.stop(t + d);
+}
+let noiseBuf = null;
+function noise(t, dur, vol, freq, bus, q = 1, type = "bandpass") {
+  if (!noiseBuf) { noiseBuf = actx.createBuffer(1, actx.sampleRate, actx.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; }
+  const s = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
+  s.buffer = noiseBuf; f.type = type; f.frequency.value = freq; f.Q.value = q;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  s.connect(f).connect(g).connect(bus); s.start(t, Math.random() * .5); s.stop(t + dur);
+}
+// coin clink: two inharmonic metallic partials
+function clink(when = 0, vol = .05) {
+  if (!soundOn || !actx) return; const t = actx.currentTime + when, base = 2400 + Math.random() * 1600;
+  [1, 2.76, 5.4].forEach((r, i) => { const o = actx.createOscillator(), g = actx.createGain(); o.type = "sine"; o.frequency.value = base * r;
+    g.gain.setValueAtTime(vol / (i + 1), t); g.gain.exponentialRampToValueAtTime(.0001, t + .25 - i * .06); o.connect(g).connect(sfxBus); o.start(t); o.stop(t + .3); });
+}
+const coinRain = n => { for (let i = 0; i < n; i++) clink(i * .045 + Math.random() * .03, .03 + Math.random() * .03); };
+const chipClack = (when = 0) => soundOn && actx && noise(actx.currentTime + when, .05, .25, 2200, sfxBus, 4);
+const cardFlip = () => soundOn && actx && noise(actx.currentTime, .09, .18, 3500, sfxBus, .7, "highpass");
+const jingle = () => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => beep(f, .16, "triangle", .07, i * .085));
+
+/* ---------- lounge music: swung ii–V–I jazz loop, generated in the browser ---------- */
+let musicOn = false, nextT = 0, step = 0, timer = null;
+const BPM = 112, S8 = 60 / BPM / 2;                  // eighth-note length
+const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+const PROG = [                                       // 8 bars, two chords per bar line
+  {root:50, chord:[53, 57, 60, 64]},  // Dm9
+  {root:43, chord:[53, 57, 59, 64]},  // G13
+  {root:48, chord:[52, 55, 59, 62]},  // Cmaj9
+  {root:45, chord:[52, 55, 58, 61]},  // A7(b9-ish)
+  {root:50, chord:[53, 57, 60, 64]},
+  {root:43, chord:[53, 55, 59, 64]},
+  {root:48, chord:[52, 55, 59, 64]},
+  {root:43, chord:[53, 57, 59, 62]},  // G7 turnaround
+];
+const SCALE = [62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79];
+function pluck(t, freq, dur, vol, type, bus, attack = .005) {
+  const o = actx.createOscillator(), g = actx.createGain(), f = actx.createBiquadFilter();
+  o.type = type; o.frequency.value = freq; f.type = "lowpass"; f.frequency.value = Math.min(5000, freq * 6);
+  g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + attack); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+  o.connect(f).connect(g).connect(bus); o.start(t); o.stop(t + dur + .05);
+}
+function rhodes(t, midi, dur, vol) {                 // electric-piano-ish: sine + quiet bell partial, slight detune
+  pluck(t, mtof(midi), dur, vol, "sine", musicBus, .01);
+  pluck(t, mtof(midi) * 2.003, dur * .5, vol * .25, "sine", musicBus, .005);
+}
+function vibes(t, midi, vol) {
+  pluck(t, mtof(midi), 1.2, vol, "sine", musicBus, .003);
+  pluck(t, mtof(midi) * 4, .3, vol * .15, "sine", musicBus, .002);
+}
+function scheduleStep(t, s) {
+  const bar = Math.floor(s / 8) % PROG.length, eighth = s % 8, beat = Math.floor(eighth / 2), off = eighth % 2 === 1;
+  const swingT = off ? t + S8 * .33 : t;              // swing the off-beats
+  const P = PROG[bar];
+  if (!off) {                                         // walking bass on every beat
+    const walk = [P.root, P.root + 7, P.root + 4, P.root + (beat === 3 ? ((PROG[(bar + 1) % PROG.length].root - P.root) > 0 ? -1 : 1) : 5)];
+    pluck(t, mtof(walk[beat] - 12 + 12), S8 * 1.8, .22, "triangle", musicBus, .01);
+    noise(t, .03, beat % 2 ? .05 : .02, 7000, musicBus, .8, "highpass");        // ride tick
+  } else {
+    noise(swingT, .05, .03, 8000, musicBus, .6, "highpass");                    // brushed off-beat
+  }
+  if (beat % 2 === 1 && eighth % 2 === 1) noise(swingT, .12, .035, 1800, musicBus, .4); // snare brush on 2 & 4
+  if ((eighth === 3 || (eighth === 6 && bar % 2 === 0)))   // comp chords on the "and of 2" / beat 4
+    P.chord.forEach((m, i) => rhodes(swingT + i * .006, m, S8 * 2.6, .045));
+  if (Math.random() < (off ? .22 : .32) && bar % 4 !== 3) {   // sparse vibraphone melody from the chord/scale
+    const pool = Math.random() < .6 ? P.chord.map(m => m + 12) : SCALE;
+    vibes(swingT, pool[Math.floor(Math.random() * pool.length)], .05);
+  }
+}
+function scheduler() {
+  while (nextT < actx.currentTime + .25) { scheduleStep(nextT, step); nextT += S8; step++; }
+}
+function setMusic(on) {
+  musicOn = on; $("music").setAttribute("aria-pressed", on); $("music").textContent = on ? "♫ Music on" : "♪ Music";
+  if (on) {
+    audio(); nextT = actx.currentTime + .1; step = 0;
+    musicBus.gain.cancelScheduledValues(actx.currentTime); musicBus.gain.setTargetAtTime(.8, actx.currentTime, .6);
+    clearInterval(timer); timer = setInterval(scheduler, 60);
+  } else if (actx) {
+    musicBus.gain.setTargetAtTime(0, actx.currentTime, .3); setTimeout(() => { if (!musicOn) clearInterval(timer); }, 1500);
+  }
+}
+$("music").onclick = () => setMusic(!musicOn);
+document.addEventListener("visibilitychange", () => { if (document.hidden && musicOn) setMusic(false); });
+
+/* ---------- gold sparkle trail (desktop pointer only) ---------- */
+if (!reduce && matchMedia("(pointer:fine)").matches) {
+  let last = 0;
+  addEventListener("pointermove", e => {
+    const now = performance.now(); if (now - last < 45) return; last = now;
+    const s = document.createElement("i"); s.className = "spark";
+    s.style.left = e.clientX - 3 + "px"; s.style.top = e.clientY - 3 + "px";
+    s.style.setProperty("--dx", (Math.random() - .5) * 30 + "px"); s.style.setProperty("--dy", Math.random() * 26 + 6 + "px");
+    document.body.appendChild(s); setTimeout(() => s.remove(), 800);
+  });
+}
+
+/* ---------- coin / chip shower ---------- */
+const fx = $("fx"), ctx = fx.getContext("2d"); let parts = [], raf = null;
+const size = () => { fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; }; size(); addEventListener("resize", size);
+function shower(n = 90, x = innerWidth / 2, y = innerHeight * .35) {
+  if (location.search.includes("shot=")) return;
+  coinRain(Math.min(24, Math.round(n / 4)));
+  if (reduce) return;
+  const cols = ["#e3b850", "#fff1b8", "#c1121f", "#1e5fd1", "#1d8a4f", "#fbf6e9"];
+  for (let i = 0; i < n; i++) parts.push({x, y, vx:(Math.random() - .5) * 14, vy:-Math.random() * 14 - 4, r:6 + Math.random() * 7, a:Math.random() * 6, va:(Math.random() - .5) * .3,
+    c:cols[i % cols.length], coin:Math.random() < .6, life:1});
+  if (!raf) loop();
+}
+function loop() {
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0); ctx.clearRect(0, 0, innerWidth, innerHeight);
+  parts = parts.filter(p => p.y < innerHeight + 40 && p.life > 0);
+  for (const p of parts) {
+    p.vy += .42; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.a += p.va; p.life -= .004;
+    ctx.save(); ctx.translate(p.x, p.y); ctx.globalAlpha = Math.min(1, p.life * 2);
+    if (p.coin) { ctx.scale(Math.abs(Math.cos(p.a)) + .15, 1); ctx.beginPath(); ctx.arc(0, 0, p.r, 0, 7); ctx.fillStyle = "#e3b850"; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = "#9c7420"; ctx.stroke();
+      ctx.fillStyle = "#9c7420"; ctx.font = `bold ${p.r}px serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("$", 0, 1); }
+    else { ctx.rotate(p.a); ctx.beginPath(); ctx.arc(0, 0, p.r, 0, 7); ctx.fillStyle = p.c; ctx.fill(); ctx.setLineDash([3, 3]); ctx.lineWidth = 3; ctx.strokeStyle = "#fbf6e9"; ctx.beginPath(); ctx.arc(0, 0, p.r - 2, 0, 7); ctx.stroke(); }
+    ctx.restore();
+  }
+  raf = parts.length ? requestAnimationFrame(loop) : (ctx.clearRect(0, 0, innerWidth, innerHeight), null);
+}
+
+/* ---------- scroll reveal ---------- */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); } }), {threshold:.08});
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ---------- playing cards: tap to flip on touch ---------- */
+document.querySelectorAll(".pcard").forEach(c => {
+  c.addEventListener("click", () => { c.classList.toggle("flip"); cardFlip(); });
+  c.addEventListener("mouseenter", cardFlip);
+});
+
+fetch("data.json").then(r => r.json()).then(D => {
+  const M = D.machines, T = D.totals, b10 = M.slice(0, 10);
+
+  /* ---------- KPI chips with rolling counters ---------- */
+  const inspect = M.filter(m => Math.abs(m.z) >= 3).length;
+  const kpis = [
+    [T.coin_in, v => usdK(v), "floor coin-in, Jan–Jun"],
+    [T.house_win, v => usdK(v), "house win (theo " + usdK(T.theo) + ")"],
+    [T.machines, v => Math.round(v), "machines on the active floor"],
+    [b10.filter(m => m.zone === "Back Forty").length, v => Math.round(v) + " / 10", "bottom-10 in the Back Forty"],
+    [inspect, v => Math.round(v), "machine with |luck z| ≥ 3"],
+    [98800, v => usd(v), "of $100K kept in reserve"],
+  ];
+  $("kpis").innerHTML = kpis.map(([, , l], i) => `<div class="chip"><div class="v" id="k${i}">0</div><div class="l">${l}</div></div>`).join("");
+  const roll = () => kpis.forEach(([v, f], i) => {
+    if (reduce) { $("k" + i).textContent = f(v); return; }
+    const t0 = performance.now(), dur = 1400 + i * 150;
+    const step = t => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3); $("k" + i).textContent = f(v * e); if (p < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step); setTimeout(() => chipClack(), dur);
+  });
+  new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { roll(); o.disconnect(); } }).observe($("kpis"));
+
+  /* ---------- slot machine ---------- */
+  const SYMS = ["♠", "♥", "♣", "♦", "7", "★"];
+  const fillStrip = (el, final) => {
+    const items = []; for (let i = 0; i < 24; i++) items.push(`<div class="sym" style="color:${i % 2 ? "#c1121f" : "#111"}">${SYMS[Math.floor(Math.random() * SYMS.length)]}</div>`);
+    items.push(`<div>${final}</div>`); el.innerHTML = items.join(""); el.style.transition = "none"; el.style.transform = "translateY(0)";
+  };
+  ["r0", "r1", "r2"].forEach((id, i) => { $(id).innerHTML = `<div>${["LUCK", "LOCATION", "LEAK"][i]}</div>`; });
+  let spinning = false;
+  $("spin").onclick = () => {
+    if (spinning) return; spinning = true; $("spin").disabled = true;
+    const m = M[Math.floor(Math.random() * M.length)];
+    const finals = [m.machine_id, m.zone.length > 11 ? m.zone.split(" ")[0] : m.zone, m.suit];
+    ["r0", "r1", "r2"].forEach((id, i) => fillStrip($(id), finals[i]));
+    $("slotmsg").textContent = "Spinning…";
+    let ticks = 0; const tick = setInterval(() => { beep(300 + Math.random() * 400, .03, "square", .02); if (++ticks > 30) clearInterval(tick); }, 60);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      ["r0", "r1", "r2"].forEach((id, i) => { const el = $(id); el.style.transition = reduce ? "none" : `transform ${1.4 + i * .5}s cubic-bezier(.15,.85,.25,1)`; el.style.transform = `translateY(-${24 * el.firstElementChild.offsetHeight}px)`; });
+    }));
+    setTimeout(() => {
+      spinning = false; $("spin").disabled = false;
+      const big = m.suit === "INSPECT" || m.raw_rank <= 10;
+      $("slotmsg").innerHTML = `${big ? "🎰 " : ""}<b>${m.machine_id}</b> · ${m.theme} · ${m.zone}: house win ${usd(m.house_win)}, luck z ${m.z.toFixed(2)}. <a href="#explorer" id="see">See its breakdown →</a>`;
+      $("see").onclick = () => select(m.machine_id);
+      if (big) { shower(120); jingle(); } else beep(988, .15, "triangle", .05);
+    }, reduce ? 50 : 2500);
+  };
+
+  /* ---------- bottom 10 ---------- */
+  new Chart($("bridge"), {type:"bar", data:{labels:b10.map(m => m.machine_id), datasets:[
+    {label:"Location", data:b10.map(m => m.location), backgroundColor:C.blue},
+    {label:"Lineup", data:b10.map(m => m.lineup), backgroundColor:C.purple},
+    {label:"Leak", data:b10.map(m => m.leak), backgroundColor:C.orange},
+    {label:"Machine-specific", data:b10.map(m => m.machine_specific), backgroundColor:C.gold},
+    {label:"Luck", data:b10.map(m => m.luck), backgroundColor:C.green},
+  ]}, options:{indexAxis:"y", maintainAspectRatio:false, scales:{x:{stacked:true, ticks:{callback:usdK}}, y:{stacked:true}},
+    plugins:{legend:{labels:{boxWidth:12}}, tooltip:{callbacks:{label:c => c.dataset.label + ": " + usd(c.raw)}}}}});
+  document.querySelector("#b10 tbody").innerHTML = b10.map(m => `<tr data-id="${m.machine_id}"><td>${m.machine_id}</td><td class="l">${m.zone}</td><td>${usd(m.house_win)}</td>
+    <td class="${cls(m.z)}">${m.z.toFixed(2)}</td><td>${m.floor_days}${m.floor_days < 181 ? '<sup title="Partial exposure: fewer than 181 floor days">*</sup>' : ""}</td><td class="l"><span class="suit s-${m.suit}">${m.suit}</span></td></tr>`).join("");
+  document.querySelectorAll("#b10 tbody tr").forEach(tr => tr.onclick = () => { select(tr.dataset.id); $("explorer").scrollIntoView(); });
+
+  /* ---------- explorer ---------- */
+  const fill = (id, vals) => $(id).insertAdjacentHTML("beforeend", [...new Set(vals)].sort().map(v => `<option>${v}</option>`).join(""));
+  fill("fz", M.map(m => m.zone)); fill("fs", M.map(m => m.suit)); fill("fm", M.map(m => m.mfr)); fill("fb", M.map(m => m.bank).filter(Boolean));
+  let sortK = "house_win", sortDir = 1, selected = null;
+  const filtered = () => {
+    const g = id => $(id).value; const q = g("q").toLowerCase(), z = g("fz"), s = g("fs"); const f = g("fm"), bk = g("fb");
+    return M.filter(m => (!z || m.zone === z) && (!s || m.suit === s) && (!f || m.mfr === f) && (!bk || m.bank === bk) &&
+      (!q || [m.machine_id, m.theme, m.bank, m.config, m.zone].join(" ").toLowerCase().includes(q)));
+  };
+  const scatter = new Chart($("scatter"), {type:"scatter", data:{datasets:[]}, options:{maintainAspectRatio:false,
+    onClick:(e, els) => { if (els.length && els[0].element.$context.raw.id) select(els[0].element.$context.raw.id); },
+    scales:{x:{title:{display:true, text:"Theo per available hour ($)"}}, y:{title:{display:true, text:"Luck z-score"}}},
+    plugins:{legend:{labels:{boxWidth:10}}, tooltip:{callbacks:{label:c => c.raw.id ? `${c.raw.id} · ${c.raw.zone} · z ${c.raw.y.toFixed(2)}` : "±3σ"}}}}});
+  let detail = null;
+  function render() {
+    const rows = filtered().sort((a, b) => (a[sortK] > b[sortK] ? 1 : a[sortK] < b[sortK] ? -1 : 0) * sortDir);
+    document.querySelector("#mt tbody").innerHTML = rows.map(m => `<tr data-id="${m.machine_id}" class="${m.machine_id === selected ? "sel" : ""}"><td>${m.machine_id}</td><td class="l">${m.zone}</td>
+      <td>${usd(m.house_win)}</td><td>$${m.rate.toFixed(2)}</td><td class="${cls(m.z)}">${m.z.toFixed(2)}</td><td>${m.faults}</td><td class="l"><span class="suit s-${m.suit}">${m.suit}</span></td></tr>`).join("");
+    document.querySelectorAll("#mt tbody tr").forEach(tr => tr.onclick = () => select(tr.dataset.id));
+    $("count").textContent = `${rows.length} of ${M.length} machines`;
+    if (!selected) {
+      const suits = [...new Set(rows.map(m => m.suit))];
+      const xs = rows.map(m => m.rate), x0 = Math.min(...xs, 0), x1 = Math.max(...xs, 30);
+      scatter.data.datasets = suits.map(s => ({label:s, backgroundColor:suitColor(s), pointRadius:s === "INSPECT" ? 7 : 4,
+        data:rows.filter(m => m.suit === s).map(m => ({x:m.rate, y:m.z, id:m.machine_id, zone:m.zone}))}))
+        .concat([3, -3].map(v => ({type:"line", label:v > 0 ? "±3σ" : "", data:[{x:x0, y:v}, {x:x1, y:v}], borderColor:C.red, borderDash:[5, 5], pointRadius:0, borderWidth:1})));
+      scatter.update();
+    }
+  }
+  document.querySelectorAll("#mt th").forEach(th => th.onclick = () => { const k = th.dataset.k; sortDir = sortK === k ? -sortDir : 1; sortK = k; render(); });
+  ["q", "fz", "fs", "fm", "fb"].forEach(id => $(id).addEventListener("input", () => { selected = null; reset(); render(); }));
+  function reset() {
+    $("dstats").hidden = true; $("dtitle").textContent = "Luck vs. earning rate";
+    $("dnote").textContent = "Each dot is a machine. Dots outside the dashed ±3σ lines are statistically unusual. Click a row or a dot.";
+    scatter.canvas.style.display = ""; if (detail) { detail.destroy(); detail = null; const cv = $("dchart"); if (cv) cv.remove(); }
+  }
+  function select(id) {
+    selected = id; const m = M.find(x => x.machine_id === id); render();
+    $("dtitle").innerHTML = `${m.machine_id} <span class="suit s-${m.suit}">${m.suit}</span> <a href="#" id="back" style="font-size:12px;margin-left:8px">← all machines</a>`;
+    $("back").onclick = e => { e.preventDefault(); selected = null; reset(); render(); };
+    $("dnote").textContent = `${m.theme} (${m.config}, ${Math.round(m.rtp * 100)}% RTP, ${m.vol} volatility) · ${m.mfr} · ${m.zone} · bank ${m.bank}`;
+    const st = $("dstats"); st.hidden = false;
+    st.innerHTML = [["House win", usd(m.house_win)], ["Theo", usd(m.theo)], ["Luck", usd(m.luck) + " (z " + m.z.toFixed(2) + ")"], ["Location", usd(m.location)],
+      ["Lineup", usd(m.lineup)], ["Leak", usd(m.leak)], ["Machine-specific", usd(m.machine_specific)], ["Floor days", m.floor_days]].map(([l, v]) => `<div><b>${v}</b><span>${l}</span></div>`).join("");
+    scatter.canvas.style.display = "none"; if (detail) detail.destroy();
+    const holder = scatter.canvas.parentNode; let cv = $("dchart");
+    if (!cv) { cv = document.createElement("canvas"); cv.id = "dchart"; holder.appendChild(cv); }
+    detail = new Chart(cv, {type:"bar", data:{labels:["Location", "Lineup", "Leak", "Machine-specific", "Luck"],
+      datasets:[{data:[m.location, m.lineup, m.leak, m.machine_specific, m.luck], backgroundColor:[C.blue, C.purple, C.orange, C.gold, C.green], borderRadius:6}]},
+      options:{maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c => usd(c.raw)}}}, scales:{y:{ticks:{callback:usdK}}}}});
+    beep(740, .05, "triangle");
+  }
+  render();
+
+  /* ---------- location ---------- */
+  const months = [...new Set(D.zone_month.map(r => r.mon))].sort();
+  const zones = [...new Set(D.zone_month.map(r => r.zone))];
+  const pal = [C.blue, C.purple, C.orange, C.green, C.gold, "#7fd6d6", "#e39ac7"];
+  new Chart($("zones"), {type:"line", data:{labels:months, datasets:zones.map((z, i) => ({label:z,
+    data:months.map(mo => (D.zone_month.find(r => r.zone === z && r.mon === mo) || {}).coin_in_per_md ?? null),
+    borderColor:z === "Back Forty" ? C.red : pal[i % pal.length], backgroundColor:z === "Back Forty" ? C.red : pal[i % pal.length],
+    borderWidth:z === "Back Forty" ? 4 : 1.5, tension:.3, pointRadius:z === "Back Forty" ? 5 : 2}))},
+    options:{maintainAspectRatio:false, scales:{y:{ticks:{callback:usdK}, title:{display:true, text:"Coin-in per machine-day"}}}, plugins:{tooltip:{callbacks:{label:c => c.dataset.label + ": " + usd(c.raw)}}}}});
+
+  /* ---------- leak ---------- */
+  new Chart($("mfr"), {type:"bar", data:{labels:D.mfr.map(r => r.mfr), datasets:[{label:"Faults per machine", data:D.mfr.map(r => r.per_machine),
+    backgroundColor:D.mfr.map((r, i) => i === 0 ? C.orange : "rgba(169,184,172,.45)"), borderRadius:8}]}, options:{maintainAspectRatio:false, plugins:{legend:{display:false}}}});
+  new Chart($("wait"), {type:"bar", data:{labels:["Morning 04–12", "Afternoon 12–18", "Evening 18–23", "Overnight 23–04"],
+    datasets:[{label:"Mean wait (h)", data:[1.07, 0.66, 1.06, 2.26], backgroundColor:["rgba(169,184,172,.45)", "rgba(169,184,172,.45)", "rgba(169,184,172,.45)", C.orange], borderRadius:8}]},
+    options:{maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{title:{display:true, text:"Hours"}}}}});
+
+  /* ---------- floor + comps ---------- */
+  const dd = D.daily, ma = dd.map((_, i) => { const s = dd.slice(Math.max(0, i - 6), i + 1); return s.reduce((a, r) => a + r.coin_in, 0) / s.length; });
+  new Chart($("daily"), {type:"line", data:{labels:dd.map(r => r.d), datasets:[
+    {label:"Daily coin-in", data:dd.map(r => r.coin_in), borderColor:"rgba(169,184,172,.5)", borderWidth:1, pointRadius:0},
+    {label:"7-day average", data:ma, borderColor:C.gold, borderWidth:2.5, pointRadius:0}]},
+    options:{maintainAspectRatio:false, interaction:{mode:"index", intersect:false}, scales:{x:{ticks:{maxTicksLimit:7}}, y:{ticks:{callback:usdK}}},
+      plugins:{tooltip:{callbacks:{label:c => c.dataset.label + ": " + usd(c.raw)}}}}});
+  new Chart($("comp"), {type:"line", data:{labels:["Jan", "Feb", "Mar", "Apr", "May", "Jun"], datasets:[
+    {label:"Comp cost ÷ tracked theo", data:[1.11, 1.20, 1.22, 1.24, 1.30, 1.32], borderColor:C.gold, backgroundColor:C.gold, borderWidth:2.5, pointRadius:4},
+    {label:"Monitor threshold 1.50%", data:Array(6).fill(1.5), borderColor:C.red, borderDash:[5, 5], pointRadius:0, borderWidth:1}]},
+    options:{maintainAspectRatio:false, scales:{y:{min:1, max:1.6, ticks:{callback:v => v.toFixed(2) + "%"}}}}});
+
+  /* ---------- plan: chip stacks ---------- */
+  const stack = (label, n, color, delay) => `<div class="col">${Array.from({length:n}, (_, i) => `<i style="--c:${color};animation-delay:${delay + i * 40}ms"></i>`).join("")}<span>${label}</span></div>`;
+  let stacked = false;
+  new IntersectionObserver((es, o) => { if (es[0].isIntersecting && !stacked) { stacked = true; o.disconnect();
+    $("stack").innerHTML = stack("Funded $1,200", 1, "#1d8a4f", 0) + stack("Kept $98,800", 24, "#c79a2b", 200);
+    setTimeout(() => { const r = $("stack").getBoundingClientRect(); shower(60, r.left + r.width / 2, r.top); jingle(); }, 1300);
+  } }).observe($("stack"));
+  document.querySelector("#cat tbody").innerHTML = D.catalog.map(a => `<tr><td>${a.name}</td><td>${usd(a.unit_cost)}</td><td>${a.per_day ? usd(a.per_day) : "—"}</td>
+    <td>${a.lead_days}</td><td>${a.quantity_limit}</td><td class="l" style="white-space:normal;min-width:240px">${a.notes ?? ""}</td></tr>`).join("");
+
+  /* ---------- model ---------- */
+  const FM = D.forecast_metrics, FC = D.forecast;
+  $("fkpis").innerHTML = [[usdK(FM.mae_base), "baseline MAE (constant mean)"], [usdK(FM.mae_model), "model MAE (weekday + event)"],
+    [FM.mape_base + "% → " + FM.mape_model + "%", "MAPE, baseline → model"], [FM.n + " days", "May–Jun holdout, never seen in training"],
+    [usdK(FM.event_effect), "event-day lift (ridge, λ = 1)"], [Math.round(100 * (1 - FM.mae_model / FM.mae_base)) + "%", "less error than the baseline"]]
+    .map(([v, l]) => `<div class="chip"><div class="v">${v}</div><div class="l">${l}</div></div>`).join("");
+  const firstHold = FC.findIndex(r => r.holdout);
+  const holdShade = {id:"hold", beforeDraw(ch) { const x = ch.scales.x, a = ch.chartArea, x0 = x.getPixelForValue(firstHold);
+    const c = ch.ctx; c.save(); c.fillStyle = "rgba(227,184,80,.08)"; c.fillRect(x0, a.top, a.right - x0, a.bottom - a.top);
+    c.fillStyle = C.gold; c.font = "600 11px Inter"; c.fillText("HOLDOUT (May–Jun)", x0 + 6, a.top + 14); c.fillText("TRAINING (Jan–Apr)", a.left + 6, a.top + 14); c.restore(); }};
+  new Chart($("fchart"), {type:"line", plugins:[holdShade], data:{labels:FC.map(r => r.d), datasets:[
+    {label:"Actual", data:FC.map(r => r.actual), borderColor:"rgba(169,184,172,.65)", borderWidth:1.2, pointRadius:0},
+    {label:"Weekday + event model", data:FC.map(r => r.model), borderColor:C.gold, borderWidth:2, pointRadius:0},
+    {label:"Constant baseline", data:FC.map(r => r.baseline), borderColor:C.red, borderDash:[6, 4], borderWidth:1.5, pointRadius:0}]},
+    options:{maintainAspectRatio:false, interaction:{mode:"index", intersect:false}, scales:{x:{ticks:{maxTicksLimit:7}}, y:{ticks:{callback:usdK}}},
+      plugins:{tooltip:{callbacks:{label:c => c.dataset.label + ": " + usd(c.raw)}}}}});
+  const WD = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], key = w => WD.findIndex(d => String(w).startsWith(d));
+  const wbs = D.weekday_bias.slice().sort((a, b) => key(a.wd) - key(b.wd));
+  new Chart($("fbias"), {type:"bar", data:{labels:wbs.map(r => String(r.wd).slice(0, 3)), datasets:[
+    {label:"Model", data:wbs.map(r => r.model_bias), backgroundColor:C.gold, borderRadius:5},
+    {label:"Baseline", data:wbs.map(r => r.base_bias), backgroundColor:"rgba(255,95,87,.55)", borderRadius:5}]},
+    options:{maintainAspectRatio:false, scales:{y:{ticks:{callback:usdK}}}, plugins:{tooltip:{callbacks:{label:c => c.dataset.label + ": " + usd(c.raw)}}}}});
+
+  /* ---------- priced actions ---------- */
+  const I = D.inspection, perDay = Math.abs(I.daily_shortfall), cond = perDay * 30;
+  const priced = [
+    ["Inspect M-1158<br><small>A-INSPECT · <b style='color:var(--green)'>FUNDED</b></small>", "$1,200 (1 machine, 1-day lead, 2 h downtime)",
+     `If the paytable or RTP setting is wrong and gets fixed: about ${usd(perDay)}/day of payout gap closed, ≈${usd(cond)} over the rest of July. Expected value at 15% / 40% / 65% chance of an actionable finding: ${usd(cond * .15)} / ${usd(cond * .40)} / ${usd(cond * .65)}.`,
+     `Luck z = ${I.z.toFixed(2)}; two-sided p = ${I.p_two_sided.toExponential(1)}, Bonferroni-adjusted across ${I.machines_tested} machines p = ${I.p_bonferroni.toFixed(4)}. That is not the chance it's "just luck", and it is not proof of a fault.`,
+     "Verify the paytable and RTP chip against game_math. If corrected, track hold vs. theo for 30 days: success = |luck z| < 2 for August. No finding → close the lead and record it."],
+    ["Comp pilot with control group<br><small>A-COMP-PILOT · DEFERRED</small>", "$4,000 (design, training, tracking)",
+     "Unknown: the May 1 redemption change has no untreated tracked cohort, so we cannot book any lift.",
+     "Historical CUPED planning MDE: $7.61 (5.77%) at 60 days for 20,577 players, above the 2.5% bar we set before funding.",
+     "If redesigned: stratified randomization by tier and pre-period theo, primary endpoint 60-day theo minus comp cost per player, intent-to-treat, final readout Sep 4."],
+    ["Preserve budget<br><small>A-HOLD · <b style='color:var(--gold)'>$98,800 KEPT</b></small>", "$0",
+     "Avoids spending on replacements, bank moves or tech shifts that don't pay back inside July. None of the bottom ten's machine-effect intervals clears the July screen.",
+     "Lease and bank-move economics turn positive only on a 12-month horizon, so they stay on the watchlist instead of in the July slip.",
+     "Re-run the screen in August with the inspection result. Comp monitor: review if comp cost ÷ tracked theo is above 1.50% for two straight weeks."],
+  ];
+  document.querySelector("#priced tbody").innerHTML = priced.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
+
+  /* ---------- claims & evidence ---------- */
+  const claims = [
+    ["The GM's bottom ten is mostly a Back Forty and lineup effect, not ten broken machines.", "prepared_daily_view (active floor, location_id not null), ranked by SUM(house_win_usd); 4-L bridge in gold_machine_verdict", "9 of 10 are in the Back Forty; 3 have partial exposure (49, 132, 55 of 181 days). Location and lineup are the largest components; the machine-specific residual is small.", "Machines individually underperforming: the machine-specific residual vs. zone-adjusted config peers is small for 9 of 10.", "Zone and config references are medians; placement isn't random, so location and lineup aren't fully separable."],
+    ["The Back Forty walkway closure cut its demand.", "floor_walkways (W-ENT-B40, Mar 3 – Apr 7) + coin-in per machine-day by zone and month; difference-in-differences in gold_competing_explanations", "March Back Forty coin-in per machine-day −23.6% vs. January, while other zones were +7.2%.", "A floor-wide seasonal dip: other zones rose. DiD pre-trend check on the daily gap.", "Descriptive comparison; coincident events and spillover to control zones possible."],
+    ["M-1158 paid out far more than its game math expects.", "machine_day × game_math (sum_bet_squared × payout_multiplier_variance)", `Luck ${usd(I.luck)}; z = ${I.z.toFixed(2)}; hold 3.04% vs. 10.00% theo; Bonferroni p = ${I.p_bonferroni.toFixed(4)} across ${I.machines_tested} machines.`, "Chance across many machines: the result survives Bonferroni adjustment.", "A lead to inspect, not an accusation; the p-value is not the probability the finding is luck."],
+    ["Ridgeline machines fault far more often.", "operations fault tickets by manufacturer, per installed machine", "7.23 tickets per machine (Ridgeline) vs. 3.02 (Northwind) and 1.93 (Halcyon); overnight tickets wait 2.26 h on average.", "Exposure differences: counts are normalized per machine, and nearly all machines were present for the full window.", "Ticket counts aren't dollar losses; downtime is valued at expected theo, not recoverable cash."],
+    ["Comp reinvestment rose after a redemption-rate change.", "player_period comp cost ÷ tracked theo; loyalty_ledger points per face dollar by week", "1.11% (Jan) → 1.32% (Jun); points per face dollar fell from ~12.4 to ~5.8 around May 1.", "Denominator choice: floor theo shows the same rise (0.73% → 0.88%). Uncarded meters used as a natural control.", "No untreated tracked cohort, so not a causal estimate of comp lift."],
+    ["A weekday + event forecast beats the constant baseline on unseen data.", "gold_forecast_day / gold_forecast_holdout_metrics (Jan–Apr train, May–Jun holdout)", `MAE ${usd(FM.mae_base)} → ${usd(FM.mae_model)}; MAPE ${FM.mape_base}% → ${FM.mape_model}% over ${FM.n} days.`, "The constant Jan–Apr mean (the required simple baseline).", "Only 61 holdout days; weather and visitation deliberately excluded to avoid leakage."],
+    ["Keeping $98,800 beats every other July spend.", "gold_action_plan, gold_action_voi, action_catalog", "Only the $1,200 inspection clears the bar; replacement, bank-move and tech-shift packages don't pay back in July.", "Replace the bottom ten (lease $2,500 + $55/day each): negative July net, and the machine-effect intervals don't support it.", "Scenario probabilities are planning assumptions, not measured frequencies."],
+  ];
+  document.querySelector("#claims tbody").innerHTML = claims.map((r, i) => `<tr><td>C${i + 1}</td>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("");
+
+  const P = new URLSearchParams(location.search), shot = P.get("shot");
+  if (shot) {   // screenshot mode for the walkthrough video: jump to a section, no particle effects
+    document.head.insertAdjacentHTML("beforeend", "<style>.reveal{transition:none!important}</style>");
+    document.querySelectorAll(".reveal").forEach(e => e.classList.add("on"));
+    if (P.get("m")) select(P.get("m"));
+    document.querySelectorAll("main > *").forEach(el => { if (el.id !== shot) el.style.display = "none"; });
+    $(shot).style.paddingTop = "18px"; window.dispatchEvent(new Event("resize"));
+  } else setTimeout(() => shower(70), 700);
+}).catch(err => { document.querySelector("main").insertAdjacentHTML("afterbegin", `<p class="verdict">Could not load data.json: ${err}</p>`); });
+})();
+</script>
+</body>
+</html>

@@ -62,7 +62,7 @@ _Every number below was computed from the released parquet files. Ratio-of-sums,
 
 | machine | coin-in | house win | theo | luck $ | σ (analytic) | z | observed hold | theo hold |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| M-1158 | $51.96M | $15.8k | $52.0k | $-36,165 | $7,913 | -4.57 | 3.04% | 10.00% |
+| M-1158 | $0.52M | $15.8k | $52.0k | $-36,165 | $7,913 | -4.57 | 3.04% | 10.00% |
 
 **Verified:** M-1158 shows a strongly negative luck residual with an analytic z of **-4.57**. Observed hold 3.04% vs theo 10.00%. Treat as **🔍 INSPECT** lead only — never an accusation.
 
